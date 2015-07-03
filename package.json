@@ -1,0 +1,23 @@
+{
+  "name": "janus-mysql-userlist",
+  "version": "0.0.1",
+  "description": "Plugin for janus-server, keeps current list of online user in database.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/timschwartz/janus-mysql-userlist"
+  },
+  "keywords": [
+    "janus",
+    "janusvr",
+    "userlist"
+  ],
+  "author": "Tim Schwartz",
+  "license": "LGPL 2.1",
+  "bugs": {
+    "url": "https://github.com/timschwartz/janus-mysql-userlist/issues"
+  }
+}
