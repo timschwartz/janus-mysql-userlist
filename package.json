@@ -17,6 +17,9 @@
   ],
   "author": "Tim Schwartz",
   "license": "LGPL 2.1",
+  "dependencies": {
+    "mysql": "^2.5.4"
+  },
   "bugs": {
     "url": "https://github.com/timschwartz/janus-mysql-userlist/issues"
   }
