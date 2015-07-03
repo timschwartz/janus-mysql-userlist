@@ -1,6 +1,6 @@
 {
   "name": "janus-mysql-userlist",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Plugin for janus-server, keeps current list of online user in database.",
   "main": "index.js",
   "scripts": {
