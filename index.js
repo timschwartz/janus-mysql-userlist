@@ -50,13 +50,25 @@ function Plugin(server) {
 Plugin.prototype.call = function() {
     var users = this._server._userList;
     
+    var items = this._server._sessions._items;
+  
+    var active = Array();
+    for(i in items) {
+        active.push(items[i].id);
+    }
+
     for(u in users) {
+        if(active.indexOf(u) == -1) {
+             delete this._server._userList[u];
+             continue;
+        }
+
         query = "INSERT INTO `users` (`userId`, `updated_at`, `roomId`) VALUES (?, NOW(), ?) ON DUPLICATE KEY UPDATE `updated_at` = NOW(), `roomId` = ?;";
         inserts = [u, users[u].roomId, users[u].roomId];
         sql = mysql.format(query, inserts);
 
         this._conn.query(sql, function(err, results) {
-            if(err != null) throw new Error(err);
+            if(err != null) console.log(err);
         });
     }
 }
