@@ -23,7 +23,8 @@ var config = require(args.config || '../../config.js');
 function Plugin(server) {
     console.log("Loading janus-mysql-userlist");
     log.info("Loading janus-mysql-userlist");
-    this._conn = mysql.createConnection({
+    this._conn = mysql.createPool({
+        connectionLimit : 30,
         host     : config.MySQL_Hostname,
         user     : config.MySQL_Username,
         password : config.MySQL_Password,
@@ -32,19 +33,13 @@ function Plugin(server) {
 
     this._server = server;
 
-    this._conn.connect(function(err) {
-        if (err) {
-            throw new Error('Can not connect to mysql server '+config.MySQL_Hostname);
-            return;
-        }
-    console.log("Connected to mysql server "+config.MySQL_Hostname);
-    log.info("Connected to mysql server "+config.MySQL_Hostname);
-    });
-
     this._conn.query(create_users_query, function(err, results) {
         if(err != null) throw new Error(err);
         if(results.warningCount == 0) log.info("Created `users` table.");
     });
+
+    console.log("Connected to mysql server "+config.MySQL_Hostname);
+    log.info("Connected to mysql server "+config.MySQL_Hostname);
 }
 
 Plugin.prototype.call = function() {
