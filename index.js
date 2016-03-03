@@ -21,50 +21,58 @@ var args   = require('optimist').argv;
 var config = require(args.config || '../../config.js');
 
 function Plugin(server) {
-    console.log("Loading janus-mysql-userlist");
-    log.info("Loading janus-mysql-userlist");
-    this._conn = mysql.createPool({
-        connectionLimit : 30,
-        host     : config.MySQL_Hostname,
-        user     : config.MySQL_Username,
-        password : config.MySQL_Password,
-        database : config.MySQL_Database
-    });
+    if(config.Userlist) {
+        console.log("Loading janus-mysql-userlist");
+        log.info("Loading janus-mysql-userlist");
+        this._conn = mysql.createPool({
+            connectionLimit : 30,
+            host     : config.MySQL_Hostname,
+            user     : config.MySQL_Username,
+            password : config.MySQL_Password,
+            database : config.MySQL_Database
+        });
 
-    this._server = server;
+        this._server = server;
 
-    this._conn.query(create_users_query, function(err, results) {
-        if(err != null) throw new Error(err);
-        if(results.warningCount == 0) log.info("Created `users` table.");
-    });
+        this._conn.query(create_users_query, function(err, results) {
+            if(err != null) throw new Error(err);
+            if(results.warningCount == 0) log.info("Created `users` table.");
+        });
 
-    console.log("Connected to mysql server "+config.MySQL_Hostname);
-    log.info("Connected to mysql server "+config.MySQL_Hostname);
+        console.log("Connected to mysql server "+config.MySQL_Hostname);
+        log.info("Connected to mysql server "+config.MySQL_Hostname);
+    }
+    else {
+        console.log("Plugin janus-mysql-userlist disabled in config file.");
+        log.info("Plugin janus-mysql-userlist disabled in config file.");
+    }
 }
 
 Plugin.prototype.call = function() {
-    var users = this._server._userList;
+    if(config.Userlist) {
+        var users = this._server._userList;
     
-    var items = this._server._sessions._items;
+        var items = this._server._sessions._items;
   
-    var active = Array();
-    for(i in items) {
-        active.push(items[i].id);
-    }
-
-    for(u in users) {
-        if(active.indexOf(u) == -1) {
-             delete this._server._userList[u];
-             continue;
+        var active = Array();
+        for(i in items) {
+            active.push(items[i].id);
         }
 
-        query = "INSERT INTO `users` (`userId`, `updated_at`, `roomId`) VALUES (?, NOW(), ?) ON DUPLICATE KEY UPDATE `updated_at` = NOW(), `roomId` = ?;";
-        inserts = [u, users[u].roomId, users[u].roomId];
-        sql = mysql.format(query, inserts);
+        for(u in users) {
+            if(active.indexOf(u) == -1) {
+                delete this._server._userList[u];
+                continue;
+            }
 
-        this._conn.query(sql, function(err, results) {
-            if(err != null) console.log(err);
-        });
+            query = "INSERT INTO `users` (`userId`, `updated_at`, `roomId`) VALUES (?, NOW(), ?) ON DUPLICATE KEY UPDATE `updated_at` = NOW(), `roomId` = ?;";
+            inserts = [u, users[u].roomId, users[u].roomId];
+            sql = mysql.format(query, inserts);
+
+            this._conn.query(sql, function(err, results) {
+                if(err != null) console.log(err);
+            });
+        }
     }
 }
 
